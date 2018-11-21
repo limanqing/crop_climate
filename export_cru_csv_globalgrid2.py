@@ -1,5 +1,4 @@
 #coding=utf-8
-
 import glob
 from netCDF4 import Dataset
 import datetime
@@ -13,17 +12,24 @@ def calculate_average(data,time,i,j,start_day,end_day,start_day2,end_day2,grid_d
     sum=0
     start_month1=calculate_month(start_day[i][j])#计算玉米生长期的开始月份和结束月份
     end_month1=calculate_month(end_day[i][j])
-    plant_month=[start_month1,end_month1]
+    if start_month1<=end_month1:#有可能存在开始月份是12月，而结束月份为2月的情况
+        plant_month=list(range(start_month1,end_month1+1))
+    else:
+        plant_month=list(range(start_month1,13))+list(range(1,end_month1+1))
     if str(start_day2[i][j])!='--':#如果有第二个生长期，就计算第二个生长期
         start_month2=calculate_month(start_day2[i][j])
         end_month2=calculate_month(end_day2[i][j])
-        plant_month.extend([start_month2,end_month2])
+        if start_month1<=end_month1:
+            plant_month.extend(range(start_month2,end_month2+1))
+        else:
+            plant_month.extend(range(start_month2,13))
+            plant_month.extend(range(1,end_month2+1))
         
     years=time//12
     for year in range(years):
         for month in plant_month:#累加每个生长季的数据
             h=year*12+month-1
-            sum+=data[h][i][j]
+            sum+=data[h][359-i][j]
         avg=sum/len(plant_month)
         sum=0
 
@@ -31,6 +37,8 @@ def calculate_average(data,time,i,j,start_day,end_day,start_day2,end_day2,grid_d
         grid_dic.setdefault(k,{})
         grid_dic[k].setdefault(year+1901,[])
         grid_dic[k][year+1901].append(avg)  
+        
+        
 
 if __name__ == '__main__':
     base_dir = r'F:\crop-climate\cru\*.nc'
@@ -50,8 +58,11 @@ if __name__ == '__main__':
         time,nrow,ncol = data.shape
 
         for i in range(nrow):
-            for j in range(ncol):
+            for j in range(ncol):#一个一个栅格的计算
+                print(factor,i,j)
                 if str(start_day[i][j])=='--' or str(end_day[i][j])=='--':#如果这个地区没有玉米的物候信息，就去下个栅格
+                    continue
+                if str(data[0][359-i][j])=='--':#如果这个地区没有气象要素数据，就去下个栅格
                     continue
                 calculate_average(data,time,i,j,start_day,end_day,start_day2,end_day2,grid_dic)
         ds.close()
