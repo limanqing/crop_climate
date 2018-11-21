@@ -29,7 +29,7 @@ def linear_result(x, y, x_name, res):
     return ys
 
 if __name__ == '__main__':
-    base_dir = r'F:\crop-climate\crucsv\*.csv'
+    base_dir = r'F:\crop-climate\cru_scale\360\*.csv'
     filelist = glob.glob(base_dir)
     for filename in filelist:
         df = pd.read_csv(filename)  #用pandas读入数据
@@ -37,20 +37,19 @@ if __name__ == '__main__':
         x_name = 'Year'
         year_list =  df[x_name]    #获取年份列("Year")的数据
         dataframe1=pd.DataFrame({'Year':year_list})
-        dataframe2=pd.DataFrame({'Year':year_list})
-        factor=['Cld','Pre','Tmn','Tmp','Tmx']
+#        dataframe2=pd.DataFrame({'Year':year_list})
+        factor=['Pre','Tmp']
         for f in factor:
             cru_list = df[f]  
             if len(set(cru_list))==1:
-                break
+                dataframe1[f]=[0]*116
+                continue
             fit_result = linear_detrend(year_list, cru_list)
             ys=linear_result(year_list, cru_list, x_name, fit_result)
             dataframe1[f]=cru_list-ys
-            dataframe2[f]=cru_list/ys
-        if len(set(cru_list))==1:
-            continue
-        dataframe1.to_csv(r'F:\crop-climate\cru_detrend\linear-additive/%s.csv' % (grid_id),index=False)
-        dataframe2.to_csv(r'F:\crop-climate\cru_detrend\linear-multiplicative/%s.csv' % (grid_id),index=False)
+#            dataframe2[f]=cru_list/ys
+        dataframe1.to_csv(r'F:\crop-climate\cru_scale_detrend\360\linear-additive/%s.csv' % (grid_id),index=False)
+#        dataframe2.to_csv(r'F:\crop-climate\cru_detrend\linear-multiplicative/%s.csv' % (grid_id),index=False)
         
     
 
