@@ -19,9 +19,9 @@ def accumulate():
 if __name__ == '__main__':
     base_dir = r'F:\crop-climate\maize&cru\linear-additive\*.csv'
     filelist = glob.glob(base_dir)
-    pre_list=[]
-    tmp_list=[]
-    maize_list=[]
+    pre_list = []
+    tmp_list = []
+    maize_list = []
     num=0
     x_ref=59
     df2 = pd.read_csv(r'F:\crop-climate\regression\mlr\linear-additive.csv',index_col=False)#读回归系数
